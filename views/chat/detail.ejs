@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/main.css">
+    <title>
+        Chat about <%= chat.postTitle %> with 
+        <% const otherUser = users.find(user => user._id.toString() !== currentUser._id.toString());%>
+        <%= otherUser ? otherUser.username : 'Unknown User' %>
+    </title>
+</head>
+<body>
+    <header>
+        <h1>Chat about <%= chat.postTitle %> with <%= otherUser ? otherUser.username : 'Unknown User' %></h1>
+        <%- include('../nav.ejs') %>
+    </header>
+    <main>
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <% if (messages && messages.length > 0) { %>
+                    <% messages.forEach(message => { %>
+                        <div class="message">
+                            <span class="sender">
+                                <%= message.userId.toString() === currentUser._id.toString() ? 'You' : otherUser.username %>
+                            </span>
+                            <span class="text"><%= message.message %></span>
+                            <span class="date"><%= new Date(message.date).toLocaleTimeString() %></span>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p>No messages yet.</p>
+                <% } %>
+            </div>
+            <div class="input-container">
+                <input type="text" id="messageInput" placeholder="Type your message here...">
+                <button id="sendBtn">Send</button>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>© 2024 Our Marketplace</p>
+    </footer>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const socket = io();
+
+            const roomId = '<%= chat._id %>';
+            const userId = '<%= currentUser._id %>';
+
+            // Join the chat room
+            socket.emit('ask-join', roomId);
+
+            // Send message when button is clicked
+            $('#sendBtn').on('click', function() {
+                const message = $('#messageInput').val().trim();
+                if (message === '') return;
+
+                socket.emit('message', {
+                    room: roomId,
+                    msg: message,
+                    userId: userId
+                });
+
+                $('#messageInput').val('');
+            });
+
+            // Send message on Enter key press
+            $('#messageInput').on('keypress', function(e) {
+                if (e.which === 13) { // Enter key
+                    $('#sendBtn').click();
+                }
+            });
+
+            // Listen for message broadcasts
+            socket.on('broadcast', function(data) {
+                const sender = data.userId === userId ? 'You' : '<%= otherUser.username %>';
+                const messageHtml = `
+                    <div class="message">
+                        <span class="sender">${sender}</span>
+                        <span class="text">${data.message}</span>
+                        <span class="date">${new Date(data.date).toLocaleTimeString()}</span>
+                    </div>
+                `;
+                $('#messages').append(messageHtml);
+                $('#messages').scrollTop($('#messages')[0].scrollHeight);
+            });
+        });
+    </script>
+</body>
+</html>

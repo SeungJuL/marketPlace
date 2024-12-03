@@ -1,0 +1,21 @@
+<nav>
+    <% if (typeof user !== 'undefined' && user) { %>
+        <a href="/">Home</a>
+        <a href="/api/post/list">Posts</a>
+        <a href="/api/post/create-post">Create Post</a>
+        <div class="dropdown">
+            <button class="dropbtn">My Page</button>
+            <div class="dropdown-content">
+                <a href="/api/user/mypage/security">Security</a>
+                <a href="/api/user/mypage/likes-list">Likes</a>
+                <a href="/api/chat/list">Chats</a>
+                <!-- Add more links for other mypage features if needed -->
+            </div>
+        </div>
+        <a href="/api/user/logout">Logout</a>
+    <% } else { %>
+        <a href="/">Home</a>
+        <a href="/api/user/login">Login</a>
+        <a href="/api/user/register">Register</a>
+    <% } %>
+</nav>

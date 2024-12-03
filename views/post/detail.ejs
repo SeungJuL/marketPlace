@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/main.css">
+    <title><%= post.title %></title>
+</head>
+<body>
+    <header>
+        <h1><%= post.title %></h1>
+        <%- include('../nav.ejs') %>
+    </header>
+    <main>
+        <p><%= post.content %></p>
+        <% if (post.image) { %>
+            <img src="<%= post.image %>" alt="Post Image" style="max-width: 100%; height: auto; border-radius: 5px;">
+        <% } %>
+        <p>By: <%= post.username %> on <%= post.date.toLocaleDateString() %></p>
+        
+        <button class="like-btn <%= user && user.likes.some(id => id.toString() === post._id.toString()) ? 'liked' : '' %>" data-post-id="<%= post._id %>">
+            <span class="heart"><i class="<%= user && user.likes.some(id => id.toString() === post._id.toString()) ? 'fas' : 'far' %> fa-heart"></i></span> 
+            <%= user && user.likes.some(id => id.toString() === post._id.toString()) ? 'Unlike' : 'Like' %>
+        </button>
+
+        <!-- Chat with Seller button -->
+        <% if (user && !user._id.equals(post.userId)) { %>
+            <a href="/api/chat/<%= post._id %>?postUserId=<%= post.userId %>" class="chat-btn">Chat with Seller</a>
+        <% } %>
+
+
+        <% if (user && user._id.equals(post.userId)) { %>
+            <a href="/api/post/edit/<%= post._id %>">Edit</a>
+            <form action="/api/post/delete/<%= post._id %>?_method=DELETE" method="POST" style="display:inline;">
+                <button type="submit">Delete</button>
+            </form>
+        <% } %>
+    </main>
+    <footer>
+        <p>© 2024 Our Marketplace</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.like-btn').on('click', function() {
+            const postId = $(this).data('post-id');
+            const isLiked = $(this).hasClass('liked');
+            const method = isLiked ? 'DELETE' : 'POST';
+
+            $.ajax({
+                url: `/api/post/${postId}/like`,
+                method: method,
+                success: function(response) {
+                    alert(response.message);
+                    if (isLiked) {
+                        $(this).removeClass('liked');
+                        $(this).find('.heart i').removeClass('fas').addClass('far');
+                        $(this).text('Like');
+                    } else {
+                        $(this).addClass('liked');
+                        $(this).find('.heart i').removeClass('far').addClass('fas');
+                        $(this).text('Unlike');
+                    }
+                }.bind(this), 
+                error: function(xhr) {
+                    alert('Error: ' + xhr.responseJSON.message);
+                }
+            });
+        });
+
+    });
+    </script>
+</body>
+</html>

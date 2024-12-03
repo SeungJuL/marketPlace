@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Likes List</title>
+    <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+    <header>
+        <h1>Your Likes</h1>
+        <%- include('../../nav.ejs') %>
+    </header>
+    <main>
+        <ul id="likesList">
+            <% if (likes && likes.length > 0) { %>
+                <% likes.forEach(like => { %>
+                    <li>
+                        <a href="/api/post/detail/<%= like._id %>"><%= like.title %></a>
+                        <button class="removeLike" data-id="<%= like._id %>">Remove</button>
+                    </li>
+                <% }) %>
+            <% } else { %>
+                <li>No likes yet.</li>
+            <% } %>
+        </ul>
+    </main>
+
+    <script>
+        // Remove like functionality
+        document.querySelectorAll('.removeLike').forEach(button => {
+            button.addEventListener('click', async function() {
+                const likeId = this.getAttribute('data-id');
+
+                try {
+                    const response = await fetch(`/api/user/mypage/likes/${likeId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        alert(data.message);
+                        // Remove the liked item from the DOM
+                        this.closest('li').remove();
+                    } else {
+                        const errorData = await response.json();
+                        alert(errorData.message);
+                    }
+                } catch (error) {
+                    console.error('Error removing like:', error);
+                    alert('An error occurred while trying to remove the like.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
