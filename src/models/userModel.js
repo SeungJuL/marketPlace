@@ -1,8 +1,21 @@
+let connectDB = require('../utils/database.js');
 
+let db
+connectDB.then((client) => {
+    db = client.db('forum')
+}).catch((err) => {
+    console.log(err)
+})
 
 class UserModel {
+    static getUserByUserId = async (userId) => {
+        const result = await db.collection('users').findOne({
+            _id: userId
+        });
+        return result;
+    }
 
-    static findUserByUsername = async (userData, db) => {
+    static getUserByUsername = async (userData, db) => {
         const result = await db.collection('users').findOne({
             username: userData
         })
@@ -18,6 +31,23 @@ class UserModel {
         })
         return result;
     } 
+
+    static updatePW = async (userId, pw) => {
+        const result = await db.collection('users').updateOne({ _id: userId },
+        {
+            $set: { password: pw }
+            });
+        return result;
+    }
+
+    static removeLike = async (postId, userId) => {
+        let result = await db.collection('users').updateOne({
+            _id: userId
+        }, {
+            $pull: { likes: postId }
+        })
+        return result;
+    }
 }
 
 module.exports = { UserModel }

@@ -1,4 +1,4 @@
-const CustomError = require("../utils/customError");
+const CustomError = require("../utils/customError.js");
 let connectDB = require('../utils/database.js');
 const bcrypt = require('bcrypt');
 const { UserModel } = require("../models/userModel.js");
@@ -10,7 +10,7 @@ connectDB.then((client) => {
 
 class UserService {
     static registerUser = async (userData) => {
-        const userFindResult = await UserModel.findUserByUsername(userData, db);
+        const userFindResult = await UserModel.getUserByUsername(userData, db);
         if (userFindResult) {
             throw new CustomError('username already in use', 400);
         }

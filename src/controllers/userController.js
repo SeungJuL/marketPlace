@@ -1,7 +1,6 @@
 const expressAsyncHandler = require("express-async-handler");
 const { passport } = require('../utils/passport.js');
-const CustomError = require("../utils/customError.js");
-const { UserService } = require("../services/userServices.js");
+const { UserService } = require("../services/userService.js");
 
 const getLoginUser = expressAsyncHandler((req, res) => {
     res.render('user/login.ejs')
@@ -42,7 +41,7 @@ const getLogoutUser = expressAsyncHandler((req, res, next) => {
     try {
         req.logout((err) => {
             if (err) {
-                throw new CustomError("Logout failed. server error", 500);
+                res.status(500).json({ message: "Logout failed. server error" })
             }
             res.redirect('/');
         });
@@ -50,5 +49,6 @@ const getLogoutUser = expressAsyncHandler((req, res, next) => {
         next(err);
     }
 });
+
 
 module.exports = { getLoginUser, postLoginUser, getRegisterUser, postRegisterUser, getLogoutUser };
