@@ -15,14 +15,14 @@ class UserModel {
         return result;
     }
 
-    static getUserByUsername = async (userData, db) => {
+    static getUserByUsername = async (userData) => {
         const result = await db.collection('users').findOne({
             username: userData
         })
         return result;
     };
 
-    static registerUser = async (userData, db) => {
+    static registerUser = async (userData) => {
         const result = await db.collection('users').insertOne({
             username: userData.username,
             password: userData.password,
