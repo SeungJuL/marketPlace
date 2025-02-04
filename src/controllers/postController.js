@@ -12,12 +12,12 @@ const postCreatePost = expressAsyncHandler(async (req, res, next) => {
         postData = {
             title: req.body.title,
             content: req.body.content,
-            image: req.file ? req.file.path : '',
+            image: req.file ? req.file.location : '',
             date: new Date(),
         };
         userData = {
             userId: req.user._id,
-            username: req.user.usernamme,
+            username: req.user.username,
         };
         if (await PostService.createPost(postData, userData)) {
             res.redirect('/api/post/list');
